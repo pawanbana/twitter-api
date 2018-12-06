@@ -37,7 +37,7 @@ app.use(bodyparser.urlencoded({extended:true}));
              	return user.generateAuthToken();
              }).then((token)=>{
              	res.cookie('x-auth-access',token);
-             	res.send('welcome to API');
+             	res.status(201).send(user);
              }).catch((e)=>{
               
              	res.status(400).send('This user already exists');
@@ -54,14 +54,14 @@ app.use(bodyparser.urlencoded({extended:true}));
      	}).then((token)=>{
       
             res.cookie('x-auth-access',token);
-     		res.send(' You are Logged in');
+     		res.status(200).send('You are Logged in');
      	}).catch((e)=>{
-     		res.status(400).send(e);
+     		res.status(404).send(e);
      	});
      });
 
      //Route to delete a token
-     app.get('/users/me/token',authenticate,(req,res)=>{
+     app.delete('/users/me/token',authenticate,(req,res)=>{
      	req.user.removeToken(req.token).then(()=>{
      		res.cookie('x-auth-access','');
      		res.status(200).send("Token is succesfully removed");
@@ -113,11 +113,11 @@ app.use(bodyparser.urlencoded({extended:true}));
                                     return caseuser=4;
                                     }).then((caseuser)=>{                                    
                                       if(caseuser==1){
-                                        res.status(400).send('This user does not exists');
+                                        res.status(404).send('This user does not exists');
 
                                       }
                                       else if(caseuser==2){
-                                        res.status(400).send('you can not follow yourself');
+                                        res.status(403).send('you can not follow yourself');
                                       }
                                       else if(caseuser==3){
                                         res.status(400).send('Already following the user');
@@ -128,7 +128,7 @@ app.use(bodyparser.urlencoded({extended:true}));
                                       }
                                     })
                                    }).catch((e)=>{
-                                      res.status(400).send("There was some error");
+                                      res.status(500).send("There was some error");
                                     });
             });
  //Route to unfollow a user with username given in url
@@ -152,7 +152,7 @@ app.use(bodyparser.urlencoded({extended:true}));
                      return caseuser=2;
               }).then((caseuser)=>{
                 if(caseuser==1){
-                  res.status(400).send('You are not following this user');
+                  res.status(404).send('You are not following this user');
                 }
                 else if(caseuser==2){
                 res.status(200).send(`${username} has been unfollowed`);
@@ -178,7 +178,7 @@ app.use(bodyparser.urlencoded({extended:true}));
                    	  	username:user.username
                    	  });
                    	tweet.save().then((doc)=>{
-                   		res.status(200).send(doc);
+                   		res.status(201).send(doc);
                    	});
 
                    }).catch((e)=>{
@@ -192,15 +192,34 @@ app.use(bodyparser.urlencoded({extended:true}));
             app.get('/tweets',authenticate,(req,res)=>{
               Tweet.find().then((tweets)=>{
                 if(tweets.length==0){
-                        return res.send('There are no tweets');
+                        return res.status(404).send('There are no tweets');
                  }
-                return res.send(tweets);
+                return res.status(200).send({tweets});
               }).catch((e)=>{
-                console.log('There was an error in getting the tweets');
+                res.status(500).send('There was an error in getting the tweets');
               });
             });
+ 
+           //To Read a Tweet with given id
+            app.get('/tweets/:id',authenticate,(req,res)=>{
+                      var id=req.params.id;
+                      if(!ObjectID.isValid(id)){
 
-           
+                   return res.status(404).send("id is not valid");
+
+                   }
+                      Tweet.findOne({_id:id}).then((tweet)=>{
+                        if(!tweet){
+                          return res.send('No tweet with this id exists');
+                        }
+                        return res.status(200).send(tweet);
+                      }).catch((e)=>{
+                          res.send('No tweet with this id exists');
+                      })
+            });
+
+
+
           //To read tweets of one user only
            app.get('/tweets/user/:id',authenticate,(req,res)=>{
                     var authorId=req.params.id;
@@ -216,7 +235,7 @@ app.use(bodyparser.urlencoded({extended:true}));
                       }
                       res.status(200).send(tweets);
                     }).catch((e)=>{
-                      res.status(400).send('There was an error getting the tweets');
+                      res.status(500).send('There was an error getting the tweets');
                     });
            });
 

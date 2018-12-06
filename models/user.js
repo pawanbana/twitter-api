@@ -43,6 +43,14 @@ var UserSchema=new mongoose.Schema({
 
 });
 
+UserSchema.methods.toJSON=function(){
+	var user=this;
+	var userObject=user.toObject();
+
+	return _.pick(userObject,['_id','username','following','tokens']);
+
+}
+
 UserSchema.methods.generateAuthToken=function(){
 	var user=this;
 	var access='auth';
@@ -96,7 +104,7 @@ UserSchema.statics.findByToken=function(token){
 		return Promise.reject();
 	}
 	
-	
+    
 	return User.findOne({
 		'_id':decoded._id,
 		'tokens.token':token,
