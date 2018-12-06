@@ -221,19 +221,15 @@ app.use(bodyparser.urlencoded({extended:true}));
 
 
           //To read tweets of one user only
-           app.get('/tweets/user/:id',authenticate,(req,res)=>{
-                    var authorId=req.params.id;
-                    if(!ObjectID.isValid(authorId)){
-
-                   return res.status(404).send("id is not valid");
-
-                   }
-                    Tweet.find({authorId:authorId}).then((tweets)=>{
+           app.get('/tweets/user/:username',authenticate,(req,res)=>{
+                    var username=req.params.username;
+                    
+                    Tweet.find({username:username}).then((tweets)=>{
                       
                       if(tweets.length==0){
-                        return res.send('This user has no tweets');
+                        return res.status(404).send('This user has no tweets');
                       }
-                      res.status(200).send(tweets);
+                      res.status(200).send({tweets});
                     }).catch((e)=>{
                       res.status(500).send('There was an error getting the tweets');
                     });
@@ -254,7 +250,7 @@ app.use(bodyparser.urlencoded({extended:true}));
                     authorId:req.user._id
                    }).then((tweet)=>{
                       if(!tweet){
-                        return res.send("Either This tweet does not exists or you are not authorised to delete this tweet");
+                        return res.status(400).send("Either This tweet does not exists or you are not authorised to delete this tweet");
                       }
 
                       res.status(200).send({tweet});

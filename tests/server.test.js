@@ -296,7 +296,6 @@ const{tweets,populatetweets,users,populateusers}=require('./seed/seed.js');
                    
                    it('Should Create tweet',(done)=>{
                      var username=users[0].username; 
-                     var password=users[0].password;
                      var text='This is a new tweet';
                       var token= users[0].tokens[0].token;
 
@@ -371,6 +370,86 @@ const{tweets,populatetweets,users,populateusers}=require('./seed/seed.js');
 
                 });
  
- 
+             //Test to Get Tweets of one user only
+             it('should get tweets of a user',(done)=>{
+                  var username=users[0].username;                  
+                  var token= users[0].tokens[0].token;
+
+                  request(app)
+                  .get(`/tweets/user/${username}`)
+                  .set('Cookie',`x-auth-access=${token}`)  
+                  .expect(200)
+                  .expect((res)=>{
+                    expect(res.body.tweets.length).toBe(2);
+                  })
+                  .end(done);
+
+                });
+             //Test if there is no tweets of a user
+              it('should show no tweets if user does not exist or have no tweets',(done)=>{
+                  var username='noone';                  
+                  var token= users[0].tokens[0].token;
+
+                  request(app)
+                  .get(`/tweets/user/${username}`)
+                  .set('Cookie',`x-auth-access=${token}`)  
+                  .expect(404)     
+                  .end(done);
+
+                });
 
          });  
+
+        //Test to delete the tweet
+         describe('DELETE/Tweet',()=>{
+
+              //Test to delete tweet with given id
+               it('should delete tweet',(done)=>{
+                  var id=tweets[0]._id;
+                  var token= users[0].tokens[0].token;
+
+                  request(app)
+                  .delete(`/tweet/delete/${id}`)
+                  .set('Cookie',`x-auth-access=${token}`)  
+                  .expect(200)
+                  .expect((res)=>{
+                  
+                    expect(res.body.tweet._id).toBe(id.toHexString());
+                    
+                  })
+                  .end((err,res)=>{
+                    if(err){
+                      return done(err);
+                    }
+                    Tweet.findOne({_id:id}).then((tweet)=>{
+                      expect(tweet).toBeFalsy();
+                      done();
+                    })
+                    .catch((e)=>{
+                      done(e);
+                    });
+                  });
+
+               });
+
+            //Test to delete a tweet when other user try to delete it
+            it('should not delete tweet when you are not authorised',(done)=>{
+                  var id=tweets[1]._id;
+                  var token= users[0].tokens[0].token;
+
+                  request(app)
+                  .delete(`/tweet/delete/${id}`)
+                  .set('Cookie',`x-auth-access=${token}`)  
+                  .expect(400)
+                  .expect((res)=>{
+                     
+                    expect(res.text).toBe('Either This tweet does not exists or you are not authorised to delete this tweet');
+
+                    
+                  })
+                  .end(done);
+
+               });
+         });  
+
+
