@@ -67,7 +67,7 @@ UserSchema.methods.followuser=function(username,uid){
 };
 UserSchema.methods.unfollowuser=function(username){
 	var user=this;
-	return user.update({
+	return user.updateOne({
 		$pull:{
 			following:{username:username}
 		}
@@ -78,7 +78,7 @@ UserSchema.methods.unfollowuser=function(username){
 
 UserSchema.methods.removeToken=function(token){
 	var user=this;
-	return user.update({
+	return user.updateOne({
 		$pull:{
 			tokens:{token}
 		}
@@ -87,7 +87,7 @@ UserSchema.methods.removeToken=function(token){
 
 UserSchema.methods.removeTokenAll=function(){
 	var user=this;
-	return user.update({
+	return user.updateOne({
 		$pull:{
 			tokens:{}
 		}

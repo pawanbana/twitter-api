@@ -47,7 +47,7 @@ const tweets=[{
 
 const populatetweets =function(done){
 	this.enableTimeouts(false);
-	Tweet.remove({}).then(()=>{
+	Tweet.deleteMany({}).then(()=>{
 	Tweet.insertMany(tweets);
 	}).then(()=>done());
     
@@ -56,7 +56,7 @@ const populatetweets =function(done){
 
 const populateusers=function(done){
 	this.enableTimeouts(false);
-	User.remove({}).then(function(){
+	User.deleteMany({}).then(function(){
 		var userone=new User(users[0]).save();
 		var usertwo=new User(users[1]).save();
 		}).then(()=>done())
