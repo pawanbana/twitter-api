@@ -113,16 +113,7 @@ before(populateusers);
              .delete('/users/me/token')
              .set('Cookie',`x-auth-access=${token}`)
              .expect(200)
-             .end((err,res)=>{
-              if(err){
-                  return done(err);
-              }
-              User.findOne({username:username}).then((user2)=>{         
-                  expect(user2.tokens.length).toBe(0);
-                  done();
-              })
-              .catch((e)=>done(e));
-             })                   
+             .end(done);                   
          });
       });
 
@@ -258,7 +249,7 @@ before(populateusers);
                      var text='This is a new tweet';
                       var token= users[0].tokens[0].token;
                       request(app)
-                      .post(`/tweet/new`)
+                      .post(`/tweets/new`)
                       .set('Cookie',`x-auth-access=${token}`)
                       .send({text:text})
                       .expect(201)
@@ -348,7 +339,7 @@ before(populateusers);
                   var id=tweets[0]._id;
                   var token= users[0].tokens[0].token;
                   request(app)
-                  .delete(`/tweet/delete/${id}`)
+                  .delete(`/tweets/delete/${id}`)
                   .set('Cookie',`x-auth-access=${token}`)  
                   .expect(200)
                   .expect((res)=>{                  
@@ -374,7 +365,7 @@ before(populateusers);
                   var id=tweets[1]._id;
                   var token= users[0].tokens[0].token;
                   request(app)
-                  .delete(`/tweet/delete/${id}`)
+                  .delete(`/tweets/delete/${id}`)
                   .set('Cookie',`x-auth-access=${token}`)  
                   .expect(400)
                   .expect((res)=>{

@@ -7,12 +7,16 @@ const bodyparser=require('body-parser');
 const _=require('lodash');
 const cookieParser=require('cookie-parser');
 const {ObjectID}=require('mongodb');
-var {mongoose}=require("./db/mongoose.js");
 var {User}=require('./models/user.js');
 var {Tweet}=require('./models/tweet.js');
-
 var {authenticate}=require('./middleware/authenticate');
 
+//setting node environment
+//linux & mac: export NODE_ENV=production
+//windows: set NODE_ENV=production
+var env=process.env.NODE_ENV||'development';
+console.log(env);
+var {mongoose}=require(`./db/${env}`);
 
 
 const port=process.env.PORT||3000;
@@ -30,6 +34,7 @@ app.use(bodyparser.urlencoded({extended:true}));
  
 
        //Route to post/signup a user
+
      app.post('/users',(req,res)=>{
              var body=_.pick(req.body,['username','password']);
              var user=new User(body);
@@ -45,22 +50,22 @@ app.use(bodyparser.urlencoded({extended:true}));
      });
 
    //Route to  Login a user
+
      app.post('/users/login',(req,res)=>{
      	var body=_.pick(req.body,['username','password']);
      	User.findByCredentials(body.username,body.password).then((user)=>{
         return user.removeTokenAll().then(()=>{         
-          return user.generateAuthToken()});
-     		
-     	}).then((token)=>{
-      
+          return user.generateAuthToken()});     		
+     	}).then((token)=>{      
             res.cookie('x-auth-access',token);
-     		res.status(200).send('You are Logged in');
+         		res.status(200).send('You are Logged in');
      	}).catch((e)=>{
      		res.status(404).send(e);
      	});
      });
 
      //Route to delete a token
+
      app.delete('/users/me/token',authenticate,(req,res)=>{
      	req.user.removeToken(req.token).then(()=>{
      		res.cookie('x-auth-access','');
@@ -79,11 +84,9 @@ app.use(bodyparser.urlencoded({extended:true}));
 //Follow/unfollow routes
 //=====================================
         
-        
- 
- 
-         
+               
          //Route to follow a user with username given in url
+
           app.post('/users/follow/:username',authenticate,(req,res)=>{
                      var username=req.params.username;                     
                      User.findByToken(req.token).then((user)=>{
@@ -131,7 +134,10 @@ app.use(bodyparser.urlencoded({extended:true}));
                                       res.status(500).send("There was some error");
                                     });
             });
+
+
  //Route to unfollow a user with username given in url
+
         app.post('/users/unfollow/:username',authenticate,(req,res)=>{
               var username=req.params.username;
               User.findByToken(req.token).then((user)=>{
@@ -168,8 +174,9 @@ app.use(bodyparser.urlencoded({extended:true}));
 //tweet routes
 //=====================================
             
-            //TO Create a tweet
-            app.post('/tweet/new',authenticate,(req,res)=>{
+            //To Create a tweet
+
+            app.post('/tweets/new',authenticate,(req,res)=>{
                    var body=_.pick(req.body,['text']);
                    User.findByToken(req.token).then((user)=>{
                    	  var tweet=new Tweet({
@@ -189,6 +196,7 @@ app.use(bodyparser.urlencoded({extended:true}));
 
 
             //To read all tweet
+
             app.get('/tweets',authenticate,(req,res)=>{
               Tweet.find().then((tweets)=>{
                 if(tweets.length==0){
@@ -199,8 +207,10 @@ app.use(bodyparser.urlencoded({extended:true}));
                 res.status(500).send('There was an error in getting the tweets');
               });
             });
+
  
            //To Read a Tweet with given id
+
             app.get('/tweets/:id',authenticate,(req,res)=>{
                       var id=req.params.id;
                       if(!ObjectID.isValid(id)){
@@ -221,6 +231,7 @@ app.use(bodyparser.urlencoded({extended:true}));
 
 
           //To read tweets of one user only
+
            app.get('/tweets/user/:username',authenticate,(req,res)=>{
                     var username=req.params.username;
                     
@@ -237,14 +248,12 @@ app.use(bodyparser.urlencoded({extended:true}));
 
           
           //To delete a Tweet with id given
-          app.delete('/tweet/delete/:id',authenticate,(req,res)=>{
+
+          app.delete('/tweets/delete/:id',authenticate,(req,res)=>{
                    var id=req.params.id;
                   if(!ObjectID.isValid(id)){
-
                    return res.status(404).send("id is not valid");
-
-                   }
-                 
+                   }                 
                    Tweet.findOneAndDelete({
                     _id:id,
                     authorId:req.user._id
@@ -252,14 +261,10 @@ app.use(bodyparser.urlencoded({extended:true}));
                       if(!tweet){
                         return res.status(400).send("Either This tweet does not exists or you are not authorised to delete this tweet");
                       }
-
-                      res.status(200).send({tweet});
-                      
-
+                      res.status(200).send({tweet});                     
                    }).catch((e)=>{
                     res.status(400).send(e);
                   });
-
           });
 
 
