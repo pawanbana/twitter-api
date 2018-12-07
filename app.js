@@ -14,11 +14,8 @@ var {Tweet}=require('./models/tweet.js');
 var userRoutes=require('./routes/user');
 var tweetRoutes=require('./routes/tweet');
 
-//setting node environment
-//linux & mac: export NODE_ENV=production
-//windows: set NODE_ENV=production
 var env=process.env.NODE_ENV||'development';
-console.log(env);
+console.log(`Current Environment is : ${env} `);
 var {mongoose}=require(`./db/${env}`);
 
 
@@ -31,9 +28,6 @@ app.use(bodyparser.urlencoded({extended:true}));
 
 app.use('/users',userRoutes);
 app.use('/tweets',tweetRoutes);
-
-
-
 
 
 //============================
