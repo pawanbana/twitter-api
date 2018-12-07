@@ -35,13 +35,15 @@ const tweets=[{
 	_id:new ObjectID(),
 	text:'hi there',
 	authorId:useroneid,
-	username:useronename
+	username:useronename,
+	reply:false
 },
 {
 	_id:new ObjectID(),
 	text:'hello there',
 	authorId:usertwoid,
-	username:usertwoname
+	username:usertwoname,
+	reply:false
 }];
 
 

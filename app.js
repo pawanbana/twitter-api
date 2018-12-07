@@ -31,8 +31,6 @@ app.use(bodyparser.urlencoded({extended:true}));
 //User Routes
 //===============================
       
- 
-
        //Route to post/signup a user
 
      app.post('/users',(req,res)=>{
@@ -41,7 +39,7 @@ app.use(bodyparser.urlencoded({extended:true}));
              user.save().then(()=>{           
              	return user.generateAuthToken();
              }).then((token)=>{
-             	res.cookie('x-auth-access',token);
+             	res.cookie('sessionId',token,{httpOnly:true ,ephemeral: true});
              	res.status(201).send(user);
              }).catch((e)=>{
               
@@ -57,7 +55,7 @@ app.use(bodyparser.urlencoded({extended:true}));
         return user.removeTokenAll().then(()=>{         
           return user.generateAuthToken()});     		
      	}).then((token)=>{      
-            res.cookie('x-auth-access',token);
+            res.cookie('sessionId',token,{httpOnly:true ,ephemeral: true});
          		res.status(200).send('You are Logged in');
      	}).catch((e)=>{
      		res.status(404).send(e);
@@ -68,7 +66,7 @@ app.use(bodyparser.urlencoded({extended:true}));
 
      app.delete('/users/me/token',authenticate,(req,res)=>{
      	req.user.removeToken(req.token).then(()=>{
-     		res.cookie('x-auth-access','');
+     		res.cookie('sessionId','');
      		res.status(200).send("Token is succesfully removed");
      	},()=>{
      		res.status(400).send("There is a problem in removing the token");
@@ -176,13 +174,14 @@ app.use(bodyparser.urlencoded({extended:true}));
             
             //To Create a tweet
 
-            app.post('/tweets/new',authenticate,(req,res)=>{
+            app.post('/tweets',authenticate,(req,res)=>{
                    var body=_.pick(req.body,['text']);
                    User.findByToken(req.token).then((user)=>{
                    	  var tweet=new Tweet({
                    	  	text:body.text,
                    	  	authorId:user._id,
-                   	  	username:user.username
+                   	  	username:user.username,
+                        reply:false
                    	  });
                    	tweet.save().then((doc)=>{
                    		res.status(201).send(doc);
@@ -198,7 +197,8 @@ app.use(bodyparser.urlencoded({extended:true}));
             //To read all tweet
 
             app.get('/tweets',authenticate,(req,res)=>{
-              Tweet.find().then((tweets)=>{
+              
+              Tweet.find({reply:false}).populate({path:'replies',populate:{path:'replies'}}).then((tweets)=>{
                 if(tweets.length==0){
                         return res.status(404).send('There are no tweets');
                  }
@@ -218,7 +218,7 @@ app.use(bodyparser.urlencoded({extended:true}));
                    return res.status(404).send("id is not valid");
 
                    }
-                      Tweet.findOne({_id:id}).then((tweet)=>{
+                      Tweet.findOne({_id:id}).populate({path:'replies',populate:{path:'replies'}}).then((tweet)=>{
                         if(!tweet){
                           return res.send('No tweet with this id exists');
                         }
@@ -267,10 +267,102 @@ app.use(bodyparser.urlencoded({extended:true}));
                   });
           });
 
+  //++++++++++++++++++++++++++++++++++++++
+  //Like/unlike Routes
+  //++++++++++++++++++++++++++++++++++++++
+
+          //Route to Like a tweet
+
+            app.post('/tweets/like/:id',authenticate,(req,res)=>{                
+                   var id=req.params.id;
+                   if(!ObjectID.isValid(id)){
+                   return res.status(404).send("id is not valid");
+                   }  
+                   User.findByToken(req.token).then((user)=>{
+                    Tweet.findOne({_id:id}).then((tweet)=>{
+                      if(!tweet){
+                        return res.status(404).send('This Tweet does not exists');
+                      }
+                      var count=0;
+                      tweet.likes.forEach(function(like){
+                        if(like.username==user.username){
+                          count++;
+                        }
+                      });
+                      
+                      if(count!=0){
+                        return res.status(400).send('Already liked the tweet');
+                      }
+
+                      tweet.likeTweet(user.username,user._id);
+                      return res.status(200).send('Liked the Tweet');
+
+                    })
+                   }).catch((e)=>{
+                    res.status(500).send(e);
+                   });
+
+            });
 
 
-            
-          
+          //Route to unlike a test
+
+          app.post('/tweets/unlike/:id',authenticate,(req,res)=>{
+                   var id=req.params.id;
+                   if(!ObjectID.isValid(id)){
+                   return res.status(404).send("id is not valid");
+                   }  
+                   Tweet.findOne({_id:id}).then((tweet)=>{
+                             var count=0;
+                             tweet.likes.forEach(function(like){
+                              if(like.username==req.user.username){
+                                count++;
+                              }
+                             });
+                             if(count==0){
+                              return res.status(404).send("you havn't like this tweet");
+                             }  
+                             tweet.unlikeTweet(req.user.username);
+                             return res.status(200).send('Unliked the Tweet');
+                   }).catch((e)=>{
+                    res.send(500).send(e);
+                   });
+          });
+
+
+     //++++++++++++++++++++++++++++++++++++
+     //Replies Routes
+     //++++++++++++++++++++++++++++++++++++
+
+
+        app.post('/tweets/reply/:id',authenticate,(req,res)=>{
+               var id=req.params.id;
+                   if(!ObjectID.isValid(id)){
+                   return res.status(404).send("id is not valid");
+                   }
+                   var body=_.pick(req.body,['text']);
+              
+                      var tweet=new Tweet({
+                        text:body.text,
+                        authorId:req.user._id,
+                        username:req.user.username,
+                        reply:true
+                      });
+                     tweet.save().then((reply)=>{
+                     Tweet.findOne({_id:id}).then((tweet2)=>{
+                           if(!tweet2){
+                            return res.status(404).send('Tweet not found');
+                         }                   
+                     tweet2.replyTweet(reply).then((tweet3)=>{
+                      return res.status(200).send('replied');
+
+                     });
+                    });
+              })
+              .catch((e)=>{
+                res.status(400).send(e);
+              });
+        });
 
 
 //============================

@@ -31,7 +31,7 @@ before(populateusers);
                 		expect(res.body._id).toBeTruthy();
                 		expect(res.body.username).toBe(username);
                 	})
-                       .end(done);
+                 .end(done);
                 	
                 	
                 });
@@ -56,8 +56,8 @@ before(populateusers);
          
          //Test to Login a user with right credentials
             it('Should login user ',(done)=>{
-                    var username='rick';
-                    var password='anything';
+                  var username='rick';
+                  var password='anything';
                   request(app)
                   .post('/users/login')
                   .send({username:username,password:password})
@@ -111,7 +111,7 @@ before(populateusers);
              var token=users[1].tokens[0].token;
              request(app)
              .delete('/users/me/token')
-             .set('Cookie',`x-auth-access=${token}`)
+             .set('Cookie',`sessionId=${token}`)
              .expect(200)
              .end(done);                   
          });
@@ -140,7 +140,7 @@ before(populateusers);
 
                 request(app)
                 .post(`/users/follow/${username2}`)
-                .set('Cookie',`x-auth-access=${token}`)
+                .set('Cookie',`sessionId=${token}`)
                 .expect(200)
                 .expect((res)=>{
                   
@@ -158,7 +158,7 @@ before(populateusers);
 
                 request(app)
                 .post(`/users/follow/${username2}`)
-                .set('Cookie',`x-auth-access=${token}`)
+                .set('Cookie',`sessionId=${token}`)
                 .expect(404)
                 .expect((res)=>{                  
                   expect(res.text).toBe(`This user does not exists`)
@@ -174,7 +174,7 @@ before(populateusers);
                var token= users[0].tokens[0].token;
                 request(app)
                 .post(`/users/follow/${username}`)
-                .set('Cookie',`x-auth-access=${token}`)
+                .set('Cookie',`sessionId=${token}`)
                 .expect(403)
                 .expect((res)=>{                  
                   expect(res.text).toBe(`you can not follow yourself`)
@@ -191,7 +191,7 @@ before(populateusers);
                var token= users[0].tokens[0].token;
                 request(app)
                 .post(`/users/follow/${username2}`)
-                .set('Cookie',`x-auth-access=${token}`)
+                .set('Cookie',`sessionId=${token}`)
                 .expect(400)
                 .expect((res)=>{                  
                   expect(res.text).toBe(`Already following the user`)
@@ -210,7 +210,7 @@ before(populateusers);
                     var token= users[0].tokens[0].token;
                       request(app)
                       .post(`/users/unfollow/${username2}`)
-                      .set('Cookie',`x-auth-access=${token}`)
+                      .set('Cookie',`sessionId=${token}`)
                       .expect(200)
                       .expect((res)=>{                        
                         expect(res.text).toBe(`${username2} has been unfollowed`)
@@ -226,7 +226,7 @@ before(populateusers);
                      var token= users[0].tokens[0].token;
                       request(app)
                       .post(`/users/unfollow/${username2}`)
-                      .set('Cookie',`x-auth-access=${token}`)
+                      .set('Cookie',`sessionId=${token}`)
                       .expect(404)
                       .expect((res)=>{
                          expect(res.text).toBe(`You are not following this user`)
@@ -249,8 +249,8 @@ before(populateusers);
                      var text='This is a new tweet';
                       var token= users[0].tokens[0].token;
                       request(app)
-                      .post(`/tweets/new`)
-                      .set('Cookie',`x-auth-access=${token}`)
+                      .post(`/tweets`)
+                      .set('Cookie',`sessionId=${token}`)
                       .send({text:text})
                       .expect(201)
                       .expect((res)=>{                        
@@ -284,7 +284,7 @@ before(populateusers);
                       var token= users[0].tokens[0].token;
                       request(app)
                       .get(`/tweets`)
-                      .set('Cookie',`x-auth-access=${token}`)                      
+                      .set('Cookie',`sessionId=${token}`)                      
                       .expect(200)
                       .expect((res)=>{                        
                         expect(res.body.tweets.length).toBe(3);                      
@@ -298,7 +298,7 @@ before(populateusers);
                   var token= users[0].tokens[0].token;
                   request(app)
                   .get(`/tweets/${id}`)
-                  .set('Cookie',`x-auth-access=${token}`)  
+                  .set('Cookie',`sessionId=${token}`)  
                   .expect(200)
                   .expect((res)=>{
                     expect(res.body.text).toBe(tweets[0].text);
@@ -312,7 +312,7 @@ before(populateusers);
                   var token= users[0].tokens[0].token;
                   request(app)
                   .get(`/tweets/user/${username}`)
-                  .set('Cookie',`x-auth-access=${token}`)  
+                  .set('Cookie',`sessionId=${token}`)  
                   .expect(200)
                   .expect((res)=>{
                     expect(res.body.tweets.length).toBe(2);
@@ -325,7 +325,7 @@ before(populateusers);
                   var token= users[0].tokens[0].token;
                   request(app)
                   .get(`/tweets/user/${username}`)
-                  .set('Cookie',`x-auth-access=${token}`)  
+                  .set('Cookie',`sessionId=${token}`)  
                   .expect(404)     
                   .end(done);
                 });
@@ -340,7 +340,7 @@ before(populateusers);
                   var token= users[0].tokens[0].token;
                   request(app)
                   .delete(`/tweets/delete/${id}`)
-                  .set('Cookie',`x-auth-access=${token}`)  
+                  .set('Cookie',`sessionId=${token}`)  
                   .expect(200)
                   .expect((res)=>{                  
                     expect(res.body.tweet._id).toBe(id.toHexString());
@@ -366,7 +366,7 @@ before(populateusers);
                   var token= users[0].tokens[0].token;
                   request(app)
                   .delete(`/tweets/delete/${id}`)
-                  .set('Cookie',`x-auth-access=${token}`)  
+                  .set('Cookie',`sessionId=${token}`)  
                   .expect(400)
                   .expect((res)=>{
                     expect(res.text).toBe('Either This tweet does not exists or you are not authorised to delete this tweet');                   
@@ -375,4 +375,84 @@ before(populateusers);
                });
          });  
 
+    
+    //Tests For Like Tweet
+      describe('POST/Like/Tweet',()=>{
+                
+                //Test to Like a tweet with given id
+                it('Should like a tweet',(done)=>{
+                        var id=tweets[1]._id;
+                        var token=users[0].tokens[0].token;
+                        request(app)
+                        .post(`/tweets/like/${id}`)
+                        .set('Cookie',`sessionId=${token}`)
+                        .expect(200)
+                        .expect((res)=>{
+                          expect(res.text).toBe('Liked the Tweet');
+                        })
+                        .end(done);
+                });
 
+                //Test to not like a tweet if it doesnot exists
+
+                 it('Should not like a tweet when it does not exists',(done)=>{
+                        var id=tweets[0]._id;
+                        var token=users[0].tokens[0].token;
+                        request(app)
+                        .post(`/tweets/like/${id}`)
+                        .set('Cookie',`sessionId=${token}`)
+                        .expect(404)
+                        .expect((res)=>{
+                          expect(res.text).toBe('This Tweet does not exists');
+                        })
+                        .end(done);
+                });
+
+                 //Test if already liked a tweet
+                 it('should not like a tweet if already liked',(done)=>{
+                        var id=tweets[1]._id;
+                        var token=users[0].tokens[0].token;
+                        request(app)
+                        .post(`/tweets/like/${id}`)
+                        .set('Cookie',`sessionId=${token}`)
+                        .expect(400)
+                        .expect((res)=>{
+                          expect(res.text).toBe('Already liked the tweet');
+                        })
+                        .end(done);
+                 });
+      });     
+
+    //Tests for unlike tweet
+
+    describe('POST/Unlike/Tweet',()=>{
+
+          //Test to unlike a tweet with given id
+           it('should unlike a tweet',(done)=>{
+                        var id=tweets[1]._id;
+                        var token=users[0].tokens[0].token;
+                        request(app)
+                        .post(`/tweets/unlike/${id}`)
+                        .set('Cookie',`sessionId=${token}`)
+                        .expect(200)
+                        .expect((res)=>{
+                          expect(res.text).toBe('Unliked the Tweet');
+                        })
+                        .end(done);
+                 });
+
+           //Test to not unlike a tweet when you haven't liked it
+           it("should not unlike a tweet if user hasn't liked a tweet",(done)=>{
+                        var id=tweets[1]._id;
+                        var token=users[0].tokens[0].token;
+                        request(app)
+                        .post(`/tweets/unlike/${id}`)
+                        .set('Cookie',`sessionId=${token}`)
+                        .expect(404)
+                        .expect((res)=>{
+                          expect(res.text).toBe("you havn't like this tweet");
+                        })
+                        .end(done);
+                       }); 
+
+    });

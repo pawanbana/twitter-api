@@ -1,10 +1,8 @@
 const {User}=require('./../models/user');
 
-
 var authenticate=(req,res,next)=>{
-	var cookie=req.headers.cookie;
-	var token=cookie.replace(/(?:(?:^|.*;\s*)x-auth-access\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-
+    var token=req.cookies.sessionId;
+    
 	User.findByToken(token).then((user)=>{
 		if(!user){
 			return Promise.reject();

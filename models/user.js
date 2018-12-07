@@ -65,6 +65,7 @@ UserSchema.methods.followuser=function(username,uid){
 	user.following.push({username:username,uid:uid});
 	return user.save();
 };
+
 UserSchema.methods.unfollowuser=function(username){
 	var user=this;
 	return user.updateOne({
