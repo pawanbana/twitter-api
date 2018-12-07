@@ -31,3 +31,19 @@ set node environment as per you need
 
 `npm test`
 
+
+
+**Routes of user**
+- /users           Post Route provide username and password in body.
+- /users/login     Post Route provide username and password in body. 
+- /users/me/token  Delete route to delete a generated token for authentication.
+
+**Routes for Tweets**
+- /tweets                Post Route provide text in body to create a tweet.
+- /tweets                Get Route to get all tweets from database.
+- /tweets/:id            Get Route to get a tweet with given id.
+- /tweets/user/:username Get Route to get tweet of a given user.
+- /tweets/delete/:id     Delete Route to delete a tweet with given id.
+- /tweets/like/:id       Post Route to Like a tweet with given id.
+- /tweets/unlike/:id     Post Route to unlike a tweet with given id.
+- /tweets/reply/:id      Post Route to reply of a tweet with given id.
