@@ -46,4 +46,4 @@ set node environment as per you need
 - `/tweets/delete/:id`  =>   Delete Route to delete a tweet with given id.
 - `/tweets/like/:id`    =>   Post Route to Like a tweet with given id.
 - `/tweets/unlike/:id`  =>   Post Route to unlike a tweet with given id.
-- `/tweets/reply/:id`   =>  Post Route to reply of a tweet with given id.
+- `/tweets/reply/:id`   =>  Post Route to reply of a tweet with given id provide text in body.
