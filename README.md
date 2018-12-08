@@ -50,3 +50,19 @@ set node environment as per you need
 - `/tweets/like/:id`    =>   Post Route to Like a tweet with given id.
 - `/tweets/unlike/:id`  =>   Post Route to unlike a tweet with given id.
 - `/tweets/reply/:id`   =>  Post Route to reply of a tweet with given id and provide text in body.
+
+
+
+
+## Built With
+
+* [ExpressJs](http://expressjs.com/) - The Framework used
+* [bcryptJs](https://www.npmjs.com/package/bcryptjs) - For password hashing
+* [Jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) - To generate Authentication tokens
+* [Lodash](https://lodash.com/) - To pick selected data from request
+* [Mocha](https://mochajs.org/) - For TEST
+* [Expect](https://www.npmjs.com/package/expect) - For Test results
+* [Supertest](https://www.npmjs.com/package/supertest) - For Test requests
+* [Chai](https://www.chaijs.com/) - For Test
+
+
