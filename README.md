@@ -7,6 +7,9 @@ This is an Api which let you signup a user with unique username and a password a
 - Reply to a tweet
 
 
+**Prerequisites**
+* [NodeJs](https://nodejs.org/en/) - NodeJs required.
+
 **First install all dependencies** 
 
 `npm install`
