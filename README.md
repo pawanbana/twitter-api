@@ -1,5 +1,5 @@
 # Twitter API
-This is a Api which let you signup a user with unique username and a password and then it gives you functionalities similar to Twitter backend Api. like,
+This is an Api which let you signup a user with unique username and a password and then it gives you functionalities similar to Twitter backend Api. like,
 
 - Follow/Unfollow
 - Create/read/delete tweets
@@ -46,4 +46,4 @@ set node environment as per you need
 - `/tweets/delete/:id`  =>   Delete Route to delete a tweet with given id.
 - `/tweets/like/:id`    =>   Post Route to Like a tweet with given id.
 - `/tweets/unlike/:id`  =>   Post Route to unlike a tweet with given id.
-- `/tweets/reply/:id`   =>  Post Route to reply of a tweet with given id provide text in body.
+- `/tweets/reply/:id`   =>  Post Route to reply of a tweet with given id and provide text in body.
