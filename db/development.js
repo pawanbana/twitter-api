@@ -5,7 +5,7 @@ mongoose.Promise=global.Promise;
 mongoose.connect('mongodb://writer:123abc@ds123844.mlab.com:23844/twitter-api',{ useCreateIndex: true,useNewUrlParser:true}).then(()=>{
 	console.log('Connected to Database');
 }).catch((e)=>{
-	console.log('Not connected to Database Either speed is slow or Check your internet');
+	console.log('Not connected to Database Either speed is slow or Check your internet Connection');
 });
 
 module.exports={
