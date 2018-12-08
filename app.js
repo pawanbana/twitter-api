@@ -10,7 +10,6 @@ var {User}=require('./models/user.js');
 var {Tweet}=require('./models/tweet.js');
 
 
-
 var userRoutes=require('./routes/user');
 var tweetRoutes=require('./routes/tweet');
 
@@ -35,7 +34,7 @@ app.use('/tweets',tweetRoutes);
 //============================
 
 app.listen(port,()=>{
-              console.log(`server is started at Port : ${port}`);
+   console.log(`server is started at Port : ${port}`);
 });
 
 

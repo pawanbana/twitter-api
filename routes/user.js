@@ -51,10 +51,6 @@ var {authenticate}=require('../middleware/authenticate');
      	});
      });
 
-  
-
-
-
 
 //=====================================
 //Follow/unfollow routes

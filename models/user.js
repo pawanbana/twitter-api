@@ -48,7 +48,6 @@ var UserSchema=new mongoose.Schema({
 UserSchema.methods.toJSON=function(){
 	var user=this;
 	var userObject=user.toObject();
-
 	return _.pick(userObject,['_id','username','following']);
 
 }
@@ -66,7 +65,6 @@ UserSchema.methods.generateAuthToken=function(){
 //To Follow a user method
 UserSchema.methods.followuser=function(username,uid){
 	var user=this;
-
 	user.following.push({username:username,uid:uid});
 	return user.save();
 };
@@ -113,9 +111,7 @@ UserSchema.statics.findByToken=function(token){
 		decoded=jwt.verify(token,'ironman');
 	}catch(e){
 		return Promise.reject();
-	}
-	
-    
+	}	    
 	return User.findOne({
 		'_id':decoded._id,
 		'tokens.token':token,
@@ -148,8 +144,7 @@ UserSchema.statics.findByCredentials=function(username,password){
 //Before saving a user in database the password must be hashed.
 
 UserSchema.pre('save',function(next){
-	var user=this;
-	
+	var user=this;	
 	if(user.isModified('password')){
 		bcrypt.genSalt(10,(err,salt)=>{
 			bcrypt.hash(user.password,salt,(err,hash)=>{
@@ -163,7 +158,6 @@ UserSchema.pre('save',function(next){
 	else{
 		next();
 	}
-
 });
 
 

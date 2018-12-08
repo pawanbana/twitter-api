@@ -44,8 +44,6 @@ const mongoose=require('mongoose');
     //To like a tweet method
     TweetSchema.methods.likeTweet=function(username,uid){
     var tweet=this;
-
-
     tweet.likes.push({username:username,uid:uid});
     return tweet.save();
    };
@@ -63,7 +61,6 @@ const mongoose=require('mongoose');
    //To reply a tweet
     TweetSchema.methods.replyTweet=function(reply){
     var tweet=this;
-
     tweet.replies.push({
         _id:reply._id
     });

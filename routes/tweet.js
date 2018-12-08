@@ -174,7 +174,7 @@ var {authenticate}=require('../middleware/authenticate');
 
 
      //++++++++++++++++++++++++++++++++++++
-     //Replies Routes
+     //Replies Route
      //++++++++++++++++++++++++++++++++++++
 
 
