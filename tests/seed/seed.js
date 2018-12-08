@@ -6,7 +6,6 @@ const jwt= require('jsonwebtoken');
 //Seeding hte data base with test data 
 //==========================================
 
-
 const useroneid=new ObjectID();
 const usertwoid=new ObjectID();
 const useronename='userone';
