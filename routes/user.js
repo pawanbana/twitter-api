@@ -20,8 +20,7 @@ var {authenticate}=require('../middleware/authenticate');
              }).then((token)=>{
              	res.cookie('sessionId',token,{httpOnly:true ,ephemeral: true});
              	res.status(201).send(user);
-             }).catch((e)=>{
-              
+             }).catch((e)=>{             
              	res.status(400).send('This user already exists');
              })
      });
@@ -66,83 +65,61 @@ var {authenticate}=require('../middleware/authenticate');
 
           router.post('/follow/:username',authenticate,(req,res)=>{
                      var username=req.params.username;                     
-                     User.findByToken(req.token).then((user)=>{
+                    
                            
                            User.findOne({username}).then((user2)=>{
                            //case 1 when no such user exists 
 
                                       if(!user2){ 
-                                       return caseuser=1;
+                                       return res.status(404).send('This user does not exists');
                                         }
                            //case 2 when you are following yourself             
-                                      if(user.username===username){
-                                       return caseuser=2;
+                                      if(req.user.username===username){
+                                       return res.status(403).send('you can not follow yourself');
                                       }
                           //case 3 when you already followed the user            
                                       var count=0;                      
-                                      user.following.forEach(function(fusername){
+                                      req.user.following.forEach(function(fusername){
                                         if(fusername.username==username){
                                           count++;
                                         }
                                       });                      
                                       if(count!=0){
-                                      return caseuser=3;
+                                      return res.status(400).send('Already following the user');
                                       }
                       //case 4 successfully followed the user
-                                    user.followuser(username,user2._id);
-                                    return caseuser=4;
-                                    }).then((caseuser)=>{                                    
-                                      if(caseuser==1){
-                                        res.status(404).send('This user does not exists');
-
-                                      }
-                                      else if(caseuser==2){
-                                        res.status(403).send('you can not follow yourself');
-                                      }
-                                      else if(caseuser==3){
-                                        res.status(400).send('Already following the user');
-
-                                      }
-                                      else if(caseuser==4){
-                                        res.status(200).send(`${username} is followed`);
-                                      }
+                                    req.user.followuser(username,user2._id);
+                                    return res.status(200).send(`${username} is followed`);
                                     })
-                                   }).catch((e)=>{
+                                   .catch((e)=>{
                                       res.status(500).send("There was some error");
                                     });
-            });
+                 });
 
 
  //Route to unfollow a user with username given in url
 
         router.post('/unfollow/:username',authenticate,(req,res)=>{
               var username=req.params.username;
-              User.findByToken(req.token).then((user)=>{
-                 //case 1 when no such user exists in following list
-                 
-                                      var count=0;                      
-                                      user.following.forEach(function(fusername){                          
-                                        if(fusername.username==username){
-                                          count++;
-                                        }
-                                      });  
+                User.findByToken(req.token).then((user)=>{
+                  //case 1 when no such user exists in following list
+                  var count=0;                      
+                  user.following.forEach(function(fusername){                          
+                            if(fusername.username==username){
+                                 count++;
+                                 }
+                               });  
                                                           
-                                      if(count==0){
-                                      return caseuser=1
-                                      }
+                            if(count==0){
+                               return res.status(404).send('You are not following this user');
+                                 }                                                        
                   //case2 successfully unfollowed the user
                      user.unfollowuser(username);
-                     return caseuser=2;
-              }).then((caseuser)=>{
-                if(caseuser==1){
-                  res.status(404).send('You are not following this user');
-                }
-                else if(caseuser==2){
-                res.status(200).send(`${username} has been unfollowed`);
-                }
-              }).catch((e)=>{
-                res.status(400).send("There is some error");
-              });
+                     return res.status(200).send(`${username} has been unfollowed`);
+                   }).catch((e)=>{
+                    res.status(404).send('There is some error');
+                   })
+                
           });
 
 module.exports=router;

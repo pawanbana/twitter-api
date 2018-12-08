@@ -37,13 +37,16 @@ before(populateusers);
                 });
 
                 //Test for not Creating a user if username taken
-                it('should not create user if username is in use ',(done)=>{
+                it('Should not create user if username is in use ',(done)=>{
                 	var username='rick';
                         var password='anything';
                         request(app)
                         .post('/users')
                         .send({username,password})
                         .expect(400)
+                        .expect((res)=>{
+                             expect(res.text).toBe('This user already exists');
+                        })
                         .end(done);
                 });
               
@@ -63,15 +66,14 @@ before(populateusers);
                   .send({username:username,password:password})
                   .expect(200)
                   .expect((res)=>{
-                    expect(res.text).toBe('You are Logged in');
-                    
+                    expect(res.text).toBe('You are Logged in');                    
                   })
                   .end(done);
 
             });
 
         //Test for login if user not exists    
-             it('should not login user who does not exists',(done)=>{
+             it('Should not login user who does not exists',(done)=>{
                 var username='anything';
                 var password='anything';
                 request(app)
@@ -85,7 +87,7 @@ before(populateusers);
                   .end(done);
              });
         //Test if user entered the wrong password
-            it('should not login user with wrong password',(done)=>{
+            it('Should not login user with wrong password',(done)=>{
                 var username='rick';
                 var password='anything1';
                 request(app)
@@ -113,6 +115,9 @@ before(populateusers);
              .delete('/users/me/token')
              .set('Cookie',`sessionId=${token}`)
              .expect(200)
+             .expect((res)=>{
+                expect(res.text).toBe("Token is succesfully removed");
+             })
              .end(done);                   
          });
       });
@@ -131,7 +136,7 @@ before(populateusers);
     describe('Post/FollowUser',()=>{
  
             //Case 1 follow user with given username
-            it('Should Follow a User with given username',(done)=>{
+            it('Should Follow a user with given username',(done)=>{
                var username=users[0].username;
                var username2=users[1].username;
                var password=users[0].password;
@@ -150,7 +155,7 @@ before(populateusers);
             });   
              
             //case 2 Not follow user when user does not exists
-            it('should not follow a user when user does not exists',(done)=>{
+            it('Should not follow a user when user does not exists',(done)=>{
                var username=users[0].username;
                var username2='anyone';
                var password=users[0].password;               
@@ -168,7 +173,7 @@ before(populateusers);
 
 
             //case 3 Cannot follow yourself
-           it('should not follow Yourself',(done)=>{
+           it('Should not follow Yourself',(done)=>{
                var username=users[0].username;              
                var password=users[0].password;               
                var token= users[0].tokens[0].token;
@@ -184,7 +189,7 @@ before(populateusers);
 
 
            //case 4 Not follow a user when already following
-           it('should not follow user when already following him',(done)=>{
+           it('Should not follow user when already following him',(done)=>{
                var username=users[0].username; 
                var username2=users[1].username;                            
                var password=users[0].password;               
@@ -293,7 +298,7 @@ before(populateusers);
                    });
 
                 //Test to get a tweet with id
-                it('should get a tweet with id',(done)=>{
+                it('Should get a tweet with id',(done)=>{
                   var id=tweets[0]._id;
                   var token= users[0].tokens[0].token;
                   request(app)
@@ -307,7 +312,7 @@ before(populateusers);
                 });
  
              //Test to Get Tweets of one user only
-             it('should get tweets of a user',(done)=>{
+             it('Should get tweets of a user with given username',(done)=>{
                   var username=users[0].username;                  
                   var token= users[0].tokens[0].token;
                   request(app)
@@ -320,13 +325,16 @@ before(populateusers);
                   .end(done);
                 });
              //Test if there is no tweets of a user
-              it('should show no tweets if user does not exist or have no tweets',(done)=>{
+              it('Should show no tweets if user does not exist or have no tweets',(done)=>{
                   var username='noone';                  
                   var token= users[0].tokens[0].token;
                   request(app)
                   .get(`/tweets/user/${username}`)
                   .set('Cookie',`sessionId=${token}`)  
                   .expect(404)     
+                  .expect((res)=>{
+                    expect(res.text).toBe('This user has no tweets');
+                  })
                   .end(done);
                 });
          });  
@@ -335,7 +343,7 @@ before(populateusers);
          describe('DELETE/Tweet',()=>{
 
               //Test to delete tweet with given id
-               it('should delete tweet',(done)=>{
+               it('Should delete tweet when authorised',(done)=>{
                   var id=tweets[0]._id;
                   var token= users[0].tokens[0].token;
                   request(app)
@@ -361,7 +369,7 @@ before(populateusers);
                });
 
             //Test to delete a tweet when other user try to delete it
-            it('should not delete tweet when you are not authorised',(done)=>{
+            it('Should not delete tweet when you are not authorised',(done)=>{
                   var id=tweets[1]._id;
                   var token= users[0].tokens[0].token;
                   request(app)
@@ -409,7 +417,7 @@ before(populateusers);
                 });
 
                  //Test if already liked a tweet
-                 it('should not like a tweet if already liked',(done)=>{
+                 it('Should not like a tweet if already liked',(done)=>{
                         var id=tweets[1]._id;
                         var token=users[0].tokens[0].token;
                         request(app)
@@ -428,7 +436,7 @@ before(populateusers);
     describe('POST/Unlike/Tweet',()=>{
 
           //Test to unlike a tweet with given id
-           it('should unlike a tweet',(done)=>{
+           it('Should unlike a tweet',(done)=>{
                         var id=tweets[1]._id;
                         var token=users[0].tokens[0].token;
                         request(app)
@@ -442,7 +450,7 @@ before(populateusers);
                  });
 
            //Test to not unlike a tweet when you haven't liked it
-           it("should not unlike a tweet if user hasn't liked a tweet",(done)=>{
+           it("Should not unlike a tweet if user hasn't liked a tweet",(done)=>{
                         var id=tweets[1]._id;
                         var token=users[0].tokens[0].token;
                         request(app)

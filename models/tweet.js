@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');
-
+//Tweet collection model
 
     var TweetSchema=new mongoose.Schema({
     	text:{
@@ -41,7 +41,7 @@ const mongoose=require('mongoose');
 
     });
 
-
+    //To like a tweet method
     TweetSchema.methods.likeTweet=function(username,uid){
     var tweet=this;
 
@@ -49,7 +49,8 @@ const mongoose=require('mongoose');
     tweet.likes.push({username:username,uid:uid});
     return tweet.save();
    };
-
+   
+   //To unlike a method
    TweetSchema.methods.unlikeTweet=function(username){
     var tweet=this;
     return tweet.updateOne({
@@ -57,8 +58,9 @@ const mongoose=require('mongoose');
             likes:{username:username}
         }
     },function(err,data){});
- };
+   };
 
+   //To reply a tweet
     TweetSchema.methods.replyTweet=function(reply){
     var tweet=this;
 

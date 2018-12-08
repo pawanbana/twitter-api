@@ -2,6 +2,9 @@ const {ObjectID}=require('mongodb');
 const {Tweet}=require('./../../models/tweet.js');
 const {User} =require('./../../models/user.js');
 const jwt= require('jsonwebtoken');
+//==========================================
+//Seeding hte data base with test data 
+//==========================================
 
 
 const useroneid=new ObjectID();
@@ -33,14 +36,14 @@ const users=[{
 
 const tweets=[{
 	_id:new ObjectID(),
-	text:'hi there',
+	text:'New tweet 1',
 	authorId:useroneid,
 	username:useronename,
 	reply:false
 },
 {
 	_id:new ObjectID(),
-	text:'hello there',
+	text:'New tweet 2',
 	authorId:usertwoid,
 	username:usertwoname,
 	reply:false

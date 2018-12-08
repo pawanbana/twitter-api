@@ -4,7 +4,7 @@ const _ =require('lodash');
 const bcrypt=require('bcryptjs');
 
 
-
+//User collection model
 
 var UserSchema=new mongoose.Schema({
           username:{
@@ -43,6 +43,8 @@ var UserSchema=new mongoose.Schema({
 
 });
 
+//To send only selected data of a user.
+
 UserSchema.methods.toJSON=function(){
 	var user=this;
 	var userObject=user.toObject();
@@ -51,6 +53,7 @@ UserSchema.methods.toJSON=function(){
 
 }
 
+//To generate a Authentication token
 UserSchema.methods.generateAuthToken=function(){
 	var user=this;
 	var access='auth';
@@ -59,6 +62,8 @@ UserSchema.methods.generateAuthToken=function(){
 	return user.save().then(()=>{return token});
 };
 
+
+//To Follow a user method
 UserSchema.methods.followuser=function(username,uid){
 	var user=this;
 
@@ -66,6 +71,8 @@ UserSchema.methods.followuser=function(username,uid){
 	return user.save();
 };
 
+
+//To unfollow a user method
 UserSchema.methods.unfollowuser=function(username){
 	var user=this;
 	return user.updateOne({
@@ -75,7 +82,7 @@ UserSchema.methods.unfollowuser=function(username){
 	},function(err,data){});
 };
 
-
+//To Remove a authentication token from database
 
 UserSchema.methods.removeToken=function(token){
 	var user=this;
@@ -86,6 +93,7 @@ UserSchema.methods.removeToken=function(token){
 	});
 };
 
+//To Remove all Authentication token from database
 UserSchema.methods.removeTokenAll=function(){
 	var user=this;
 	return user.updateOne({
@@ -95,6 +103,8 @@ UserSchema.methods.removeTokenAll=function(){
 	});
 };
 
+
+//To find a user with given token
 UserSchema.statics.findByToken=function(token){
 	var user=this;
 	
@@ -113,7 +123,7 @@ UserSchema.statics.findByToken=function(token){
 	});
 };
 
-
+//To find a user with given username and password from database.
 UserSchema.statics.findByCredentials=function(username,password){
 	var User=this;
 	return User.findOne({username}).then((user)=>{
@@ -134,6 +144,8 @@ UserSchema.statics.findByCredentials=function(username,password){
 };
 
 
+
+//Before saving a user in database the password must be hashed.
 
 UserSchema.pre('save',function(next){
 	var user=this;

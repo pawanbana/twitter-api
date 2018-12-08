@@ -1,6 +1,9 @@
 const {User}=require('./../models/user');
 
+
+//This middleware check whether a user is authenticated or not.
 var authenticate=(req,res,next)=>{
+
     var token=req.cookies.sessionId;
     
 	User.findByToken(token).then((user)=>{

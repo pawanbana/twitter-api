@@ -13,29 +13,28 @@ var {authenticate}=require('../middleware/authenticate');
             //To Create a tweet
 
             router.post('/',authenticate,(req,res)=>{
-                   var body=_.pick(req.body,['text']);
-                   User.findByToken(req.token).then((user)=>{
+                   var body=_.pick(req.body,['text']);                 
+                   	//create a tweet using Tweet model
                    	  var tweet=new Tweet({
                    	  	text:body.text,
-                   	  	authorId:user._id,
-                   	  	username:user.username,
+                   	  	authorId:req.user._id,
+                   	  	username:req.user.username,
                         reply:false
                    	  });
+                   	 //Saving the Tweet. and sending the response to user. 
                    	tweet.save().then((doc)=>{
                    		res.status(201).send(doc);
-                   	});
-
-                   }).catch((e)=>{
+                   	})
+                   .catch((e)=>{
                    	console.log('There was an error in creating the tweet');
                    });
-
             });
 
 
             //To read all tweet
 
             router.get('/',authenticate,(req,res)=>{
-              
+              //find Tweets of all users.
               Tweet.find({reply:false}).populate({path:'replies',populate:{path:'replies'}}).then((tweets)=>{
                 if(tweets.length==0){
                         return res.status(404).send('There are no tweets');
@@ -51,11 +50,12 @@ var {authenticate}=require('../middleware/authenticate');
 
             router.get('/:id',authenticate,(req,res)=>{
                       var id=req.params.id;
+
+                      //verifying whether the given id is valid or not.
                       if(!ObjectID.isValid(id)){
-
-                   return res.status(404).send("id is not valid");
-
-                   }
+                      return res.status(404).send("id is not valid");
+                      }
+                      //find tweet and sending it to user
                       Tweet.findOne({_id:id}).populate({path:'replies',populate:{path:'replies'}}).then((tweet)=>{
                         if(!tweet){
                           return res.send('No tweet with this id exists');
@@ -72,7 +72,7 @@ var {authenticate}=require('../middleware/authenticate');
 
            router.get('/user/:username',authenticate,(req,res)=>{
                     var username=req.params.username;
-                    
+                    //Find tweets of a given user with username and sending those tweets in response.
                     Tweet.find({username:username}).then((tweets)=>{
                       
                       if(tweets.length==0){
@@ -89,6 +89,7 @@ var {authenticate}=require('../middleware/authenticate');
 
           router.delete('/delete/:id',authenticate,(req,res)=>{
                    var id=req.params.id;
+                   //verifying whether a given id is valid or not
                   if(!ObjectID.isValid(id)){
                    return res.status(404).send("id is not valid");
                    }                 
@@ -113,17 +114,19 @@ var {authenticate}=require('../middleware/authenticate');
 
             router.post('/like/:id',authenticate,(req,res)=>{                
                    var id=req.params.id;
+                   //Verifying whether id is valid or not
                    if(!ObjectID.isValid(id)){
                    return res.status(404).send("id is not valid");
                    }  
-                   User.findByToken(req.token).then((user)=>{
+                   //sending like to a tweet with the id.
+                   
                     Tweet.findOne({_id:id}).then((tweet)=>{
                       if(!tweet){
                         return res.status(404).send('This Tweet does not exists');
                       }
                       var count=0;
                       tweet.likes.forEach(function(like){
-                        if(like.username==user.username){
+                        if(like.username==req.user.username){
                           count++;
                         }
                       });
@@ -132,11 +135,11 @@ var {authenticate}=require('../middleware/authenticate');
                         return res.status(400).send('Already liked the tweet');
                       }
 
-                      tweet.likeTweet(user.username,user._id);
+                      tweet.likeTweet(req.user.username,req.user._id);
                       return res.status(200).send('Liked the Tweet');
 
                     })
-                   }).catch((e)=>{
+                   .catch((e)=>{
                     res.status(500).send(e);
                    });
 
@@ -147,9 +150,11 @@ var {authenticate}=require('../middleware/authenticate');
 
           router.post('/unlike/:id',authenticate,(req,res)=>{
                    var id=req.params.id;
+                   //Verifying whether id is valid or not             
                    if(!ObjectID.isValid(id)){
                    return res.status(404).send("id is not valid");
                    }  
+                   //Finding the tweet and unliking it by removing user from likes
                    Tweet.findOne({_id:id}).then((tweet)=>{
                              var count=0;
                              tweet.likes.forEach(function(like){
@@ -174,12 +179,13 @@ var {authenticate}=require('../middleware/authenticate');
 
 
         router.post('/reply/:id',authenticate,(req,res)=>{
-               var id=req.params.id;
+                   var id=req.params.id;
+                   //Verifying whether id is valid or not               
                    if(!ObjectID.isValid(id)){
                    return res.status(404).send("id is not valid");
                    }
                    var body=_.pick(req.body,['text']);
-              
+                   //Creating Reply as a new tweet
                       var tweet=new Tweet({
                         text:body.text,
                         authorId:req.user._id,
@@ -187,12 +193,13 @@ var {authenticate}=require('../middleware/authenticate');
                         reply:true
                       });
                      tweet.save().then((reply)=>{
+                     	//Saving the reply by referencing it
                      Tweet.findOne({_id:id}).then((tweet2)=>{
                            if(!tweet2){
                             return res.status(404).send('Tweet not found');
                          }                   
                      tweet2.replyTweet(reply).then((tweet3)=>{
-                      return res.status(200).send('replied');
+                      return res.status(200).send('Replied!');
 
                      });
                     });
