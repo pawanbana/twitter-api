@@ -17,7 +17,7 @@ This is an Api which let you signup a user with unique username and a password a
 
 **Setting Database**
 
-In db folder there are two files development.js and test.js In these files fill the database link inside mongoose.connect as per order of environment
+In db folder there are two files development.js and test.js In these files fill the database link inside mongoose.connect as per order of environment.Database to be of form mongodb.
 
 **Setting the Environment**
 
