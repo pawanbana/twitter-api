@@ -14,11 +14,11 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.20.1",
     "chai": "^4.2.0",
     "cookie-parser": "^1.4.3",
     "crypto-js": "^3.1.9-1",
-    "express": "^4.16.4",
+    "express": "^4.18.2",
     "express-session": "^1.15.6",
     "global": "^4.3.2",
     "jsonwebtoken": "^8.4.0",
